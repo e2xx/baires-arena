@@ -16,20 +16,21 @@ const float LIFT = 0.05f;            // traces start this far above the floor
 const float FIT_LIFT = 0.01f;
 const float TRIGGER_MARGIN = 0.3f;   // keep plain nodes this far from pads and teleporters
 const float WALK_RADIUS = 2.3f;      // grid neighbours, diagonals included
+const float TRIGGER_RADIUS = 3.6f;   // walks into pad/teleport nodes (ground nodes keep away)
 const float WALK_SUBSTEP = 0.5f;     // each sub-step may climb one STEP_HEIGHT
 const float PROBE_STEP = 0.75f;      // ground probes along a flat walk
 const float JUMP_RADIUS = 2.6f;      // jump up onto a ledge
 const float GAP_RADIUS = 3.6f;       // jump across a hole
 const float DROP_RADIUS = 2.6f;
 const float MAX_DROP = 6.0f;
-const float JUMP_APEX = 1.42f;       // JUMP_VELOCITY² / 2g
 const float JUMP_UP = 1.3f;          // highest ledge the ballistic check accepts
 const float JUMP_UP_PMOVE = 1.9f;    // pmove can also step up onto the ledge while falling
 const float EDGE_STEP = 0.3f;        // ledge search resolution
 const int ARC_SEGMENTS = 6;
 const float TAKEOFF_MIN = 3.0f;      // m/s
-const float TAKEOFF_MARGIN = 1.25f;  // aim a bit long: landing short is worse than long
-const float TAKEOFF_EXTRA = 1.0f;
+const float TAKEOFF_MARGIN = 1.1f;   // aim a bit long: landing short is worse than long
+const float TAKEOFF_EXTRA = 0.5f;
+const float AIR_SLACK = 0.5f;        // m/s of air-speed error tolerated before steering
 const int SIM_TICKS = 120;
 const int TRIGGER_TICKS = 480;
 const float SIM_REACH = 0.6f;
@@ -88,6 +89,7 @@ struct NavNode
 	int first;       // first outgoing link
 	int count;
 	int island;      // undirected component: different islands never connect
+	bool reach;      // reachable from a spawn point (only these make sensible goals)
 }
 
 struct NavLink
@@ -160,7 +162,7 @@ struct LinkTable
 	int[] walk_count;
 }
 
-struct LinkJob
+struct LinkJob @local
 {
 	NavGraph* g;
 	LinkTable* table;
@@ -170,7 +172,7 @@ struct LinkJob
 	int rejected;
 }
 
-struct Candidate
+struct Candidate @local
 {
 	int node;
 	float dist;
@@ -239,6 +241,24 @@ fn float jump_land_time(float dy) @local
 	float disc = v * v - 2.0f * defs::GRAVITY * dy;
 	if (disc < 0) return -1.0f;
 	return (v + math::sqrt(disc)) / defs::GRAVITY;
+}
+
+<*
+ Air control toward a target: the flat direction to push (or zero to coast) so the current
+ flight lands on it. Steers the error between the velocity we have and the one we need.
+ Shared by the bots and by the pmove link check so both fly the same way.
+*>
+fn Vec3 air_wish(Vec3 pos, Vec3 vel, Vec3 target)
+{
+	Vec3 to = flat(target - pos);
+	float dist = to.length();
+	float disc = vel.y * vel.y - 2.0f * defs::GRAVITY * (target.y - pos.y);
+	if (disc < 0) return dist > 0.05f ? to / dist : (Vec3){};   // can't get that high: push on
+	float secs = math::max((vel.y + math::sqrt(disc)) / defs::GRAVITY, 0.05f);
+	Vec3 diff = to / secs - flat(vel);
+	float len = diff.length();
+	if (len < AIR_SLACK) return {};
+	return diff / len;
 }
 
 // ---------------------------------------------------------------- spatial index
@@ -329,15 +349,17 @@ fn bool LinkTable.has(&self, int a, int b)
 
 <*
  Builds the navigation graph of a parsed map. Release with NavGraph.free().
+ `threads` = 0 uses one worker per CPU.
  @require m != null && m.brush_count > 0
+ @require threads >= 0
 *>
-fn NavGraph* build(Map* m, Verify verify = GEOMETRY)
+fn NavGraph* build(Map* m, Verify verify = PMOVE, int threads = 0)
 {
 	Clock clock = clock::now();
 	NavGraph* g = mem::new(NavGraph);
 	g.map = m;
 	g.open.init(mem);
-	g.stats.workers = math::clamp(os::num_cpu(), 1, MAX_WORKERS);
+	g.stats.workers = math::clamp(threads > 0 ? threads : os::num_cpu(), 1, MAX_WORKERS);
 
 	List{NavNode} samples;
 	samples.init(mem);
@@ -539,7 +561,7 @@ fn float max_rise(float dh) @local => defs::STEP_HEIGHT * math::max(1.0f, math::
 fn void walk_links(NavGraph* g, LinkTable* t, int a) @local
 {
 	Vec3 pa = g.nodes[a].pos;
-	g.index.@each_near(pa, WALK_RADIUS; int b)
+	g.index.@each_near(pa, TRIGGER_RADIUS; int b)
 	{
 		if (wants_walk(g, a, b) && walkable(g.map, pa, g.nodes[b].pos) && !crosses_trigger(g.map, pa, &g.nodes[b]))
 		{
@@ -556,7 +578,7 @@ fn bool wants_walk(NavGraph* g, int a, int b) @local
 	if (nb.kind == GROUND && b < a) return false;
 	Vec3 d = nb.pos - g.nodes[a].pos;
 	float dh = hlen(d);
-	if (dh > WALK_RADIUS) return false;
+	if (dh > (nb.kind == GROUND ? WALK_RADIUS : TRIGGER_RADIUS)) return false;
 	return math::abs(d.y) <= max_rise(dh);
 }
 
@@ -883,7 +905,13 @@ fn bool simulate_link(Map* m, Vec3 a, Vec3 b, NavLink link)
 		float dist = to.length();
 		if (ps.flags.on_ground && dist < SIM_REACH && math::abs(ps.origin.y - b.y) < SIM_LEVEL) return true;
 		UserCmd cmd = { .yaw = dist > 0.01f ? math::atan2(to.x, to.z) : ps.yaw };
-		cmd.forward = (ichar)(127.0f * (airborne ? 1.0f : speed / defs::RUN_SPEED));
+		cmd.forward = (ichar)(127.0f * speed / defs::RUN_SPEED);
+		if (airborne)
+		{
+			Vec3 wish = air_wish(ps.origin, ps.velocity, b);
+			cmd.forward = wish.length_sq() > 0 ? 127 : 0;
+			if (wish.length_sq() > 0) cmd.yaw = math::atan2(wish.x, wish.z);
+		}
 		bool takeoff = link.kind == JUMP && !jumped && hlen(ps.origin - a) < SIM_TAKEOFF;
 		cmd.buttons.jump = takeoff;
 		if (takeoff) jumped = true;
@@ -1051,6 +1079,7 @@ fn void NavGraph.compact(&self, LinkTable* t)
 		if (remap[i] < 0) continue;
 		NavNode n = self.nodes[i];
 		n.first = l;
+		n.reach = reach[i];
 		foreach (link : t.of(i))
 		{
 			if (remap[link.to] < 0) continue;
@@ -1232,6 +1261,8 @@ fn bool NavGraph.path(&self, int from, int to, List{int}* out)
 	int count = (int)self.nodes.len;
 	if (from < 0 || to < 0 || from >= count || to >= count) return false;
 	if (self.nodes[from].island != self.nodes[to].island) return false;
+	// Whatever a spawn can reach, it reaches from every reachable node.
+	if (self.nodes[from].reach && !self.nodes[to].reach) return false;
 	if (from == to)
 	{
 		out.push(from);

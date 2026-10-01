@@ -25,8 +25,8 @@ stairs 12 0 14  16 3.5 24  6 -x concrete
 box -10 0 -6  -8 12 -4  stone
 box 8 0 -6  10 12 -4  stone
 box -1 0 4  1 1.2 6  container_red
-box -14 0 -18  -10 2.5 -14  container_blue
-box 10 0 -18  14 2.5 -14  wood
+box -14 0 -18  -10 1.8 -14  container_blue
+box 10 0 -18  14 1.8 -14  wood
 
 # luces
 box -3 11.8 -3  3 12 3  light
@@ -53,11 +53,11 @@ item rocket 0 3.5 20
 item rail -20 0 18
 item shotgun 20 0 -20
 item mega 0 0 0
-item armor_yellow 12 2.5 -16
+item armor_yellow 12 1.8 -16
 item health 18 0 18
 item health -18 0 -18
 item ammo_rocket 8 3.5 20
 item ammo_rail -18 0 16
 item armor_shard -3 0 8
 item armor_shard 3 0 8
-item quad -12 2.5 -16
+item quad -12 1.8 -16

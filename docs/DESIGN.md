@@ -45,7 +45,15 @@ src/game/map.c3             arena::map       Map + parser del formato .map
 src/game/collide.c3         arena::map       trazas de caja/rayo contra brushes (métodos de Map)
 src/game/pmove.c3           arena::pmove     física del jugador (determinista, cliente+server)
 src/game/world.c3           arena::world     simulación autoritativa: jugadores, armas, items, match
-src/game/bot.c3             arena::bot       navegación + IA → produce UserCmd
+src/game/nav.c3             arena::nav       grafo de navegación autogenerado + A*
+src/game/bot.c3             arena::bot       IA de bots → produce UserCmd
+src/game/bots.c3            arena::bots      plantel de bots de una partida (hook por tick)
+src/game/snap.c3            arena::snap      Snapshot: lo que el cliente necesita para dibujar un tick
+src/client/bake.c3          arena::bake      horneado de luz por vértice + grilla de sondas
+src/client/fx.c3            arena::fx        partículas, rail beams, luces dinámicas
+src/client/cgame.c3         arena::cgame     input → UserCmd, cámara, eventos → sonido/fx/HUD
+src/client/session.c3       arena::session   partida offline / anfitrión / remota
+src/client/synth.c3         arena::synth     DSP de audio
 src/net/udp.c3              arena::udp       sockets UDP no bloqueantes (extern Winsock/POSIX)
 src/net/proto.c3            arena::proto     mensajes, snapshots, handshake
 src/net/server.c3           arena::server    servidor: clientes, snapshots, timeouts

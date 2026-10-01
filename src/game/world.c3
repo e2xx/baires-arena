@@ -212,7 +212,8 @@ fn void World.spawn(&self, int slot)
 	Player* p = &self.players[slot];
 	Spawn s = self.pick_spawn(slot);
 	bool bit = p.ps.flags.teleport_bit;
-	p.ps = { .origin = s.pos, .yaw = s.yaw };
+	// Start a hair above the floor: resting exactly on it counts as "inside" for the ground trace.
+	p.ps = { .origin = s.pos + (Vec3){ 0, map::SURFACE_EPSILON, 0 }, .yaw = s.yaw };
 	p.ps.flags.teleport_bit = !bit;
 	p.health = defs::SPAWN_HEALTH;
 	p.armor = 0;
