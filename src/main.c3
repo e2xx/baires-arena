@@ -484,7 +484,10 @@ fn int main(String[] argv)
 			bool typing = console::wants_keyboard();
 
 			// Esc in game opens the pause menu (the menu handles Esc itself once open).
-			if (app.game != null && !menu::is_open() && !typing && rl::is_key_pressed(RLKeyboardKey.ESCAPE))
+			// The menu only takes input from the next frame on: otherwise it would see this same
+			// Esc press as "back" and close itself immediately.
+			bool menu_was_open = menu::is_open();
+			if (app.game != null && !menu_was_open && !typing && rl::is_key_pressed(RLKeyboardKey.ESCAPE))
 			{
 				menu::open(PAUSE);
 				rl::enable_cursor();
@@ -506,7 +509,7 @@ fn int main(String[] argv)
 				run_session(s, dt, input && s == app.game, w, h);
 				if (s == app.game) draw_status(s, w, h);
 			}
-			if (menu::is_open())
+			if (menu_was_open && menu::is_open())
 			{
 				int lan_n = lan_poll(lan[..], dt);
 				Action a = menu::update_draw(&app.opt, lan[:lan_n], maps[..], w, h);
