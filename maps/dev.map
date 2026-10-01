@@ -1,0 +1,63 @@
+# Mapa de desarrollo: sala simple para probar movimiento, armas y luz.
+name "Sala de pruebas"
+sky 0.02 0.025 0.04
+fog 0.03 0.035 0.05 0.008
+ambient 0.12 0.12 0.15
+sun 0.3 -1 0.2  0 0 0
+
+# piso, paredes, techo
+box -24 -1 -24  24 0 24  cobble
+box -25 0 -25  -24 12 25  brick
+box 24 0 -25  25 12 25  brick
+box -25 0 -25  25 12 -24  tile_white
+box -25 0 24  25 12 25  tile_white
+box -25 12 -25  25 13 25  concrete
+box -24 2 -24.2  24 2.6 -24  tile_band
+box -24 2 24  24 2.6 24.2  tile_band
+
+# balcón norte con escalera
+box -12 3 14  12 3.5 24  metal
+box -12 3.5 13.8  12 3.7 14  trim
+stairs -16 0 14  -12 3.5 24  6 +x concrete
+stairs 12 0 14  16 3.5 24  6 -x concrete
+
+# columnas
+box -10 0 -6  -8 12 -4  stone
+box 8 0 -6  10 12 -4  stone
+box -1 0 4  1 1.2 6  container_red
+box -14 0 -18  -10 2.5 -14  container_blue
+box 10 0 -18  14 2.5 -14  wood
+
+# luces
+box -3 11.8 -3  3 12 3  light
+light 0 11 0  1.3 1.2 1.0  22
+box -3 11.8 -20  3 12 -18  light
+light 0 11 -19  1.1 1.0 0.9  16
+light 0 6 19  0.9 1.0 1.2  14
+light -20 3 0  1.4 0.5 0.3  10
+light 20 3 0  0.3 0.6 1.4  10
+
+jumppad 0 0 -10  0 6.5 18
+teleport -20 0 -20  18 3.5 20  180
+
+spawn -18 0 0 90
+spawn 18 0 0 -90
+spawn 0 0 -20 0
+spawn 0 3.5 20 180
+spawn -18 0 18 135
+spawn 18 0 -18 -45
+spawn -6 0 -12 30
+spawn 6 0 10 200
+
+item rocket 0 3.5 20
+item rail -20 0 18
+item shotgun 20 0 -20
+item mega 0 0 0
+item armor_yellow 12 2.5 -16
+item health 18 0 18
+item health -18 0 -18
+item ammo_rocket 8 3.5 20
+item ammo_rail -18 0 16
+item armor_shard -3 0 8
+item armor_shard 3 0 8
+item quad -12 2.5 -16

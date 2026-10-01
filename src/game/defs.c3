@@ -44,6 +44,19 @@ const int DEFAULT_FRAGLIMIT = 20;
 const int DEFAULT_TIMELIMIT_MIN = 10;
 const float INTERMISSION_TIME = 8.0f;
 
+// Player colours (index sent over the network).
+enum PlayerColor : char (String name, Vec3 rgb)
+{
+	CELESTE { "Celeste", { 0.45f, 0.75f, 0.95f } },
+	ROJO { "Rojo", { 0.90f, 0.22f, 0.20f } },
+	VERDE { "Verde", { 0.30f, 0.80f, 0.35f } },
+	AMARILLO { "Amarillo", { 0.95f, 0.82f, 0.20f } },
+	VIOLETA { "Violeta", { 0.62f, 0.38f, 0.90f } },
+	NARANJA { "Naranja", { 0.98f, 0.55f, 0.15f } },
+	ROSA { "Rosa", { 0.95f, 0.45f, 0.70f } },
+	BLANCO { "Blanco", { 0.92f, 0.92f, 0.92f } },
+}
+
 enum Surface : char
 {
 	OPAQUE,
