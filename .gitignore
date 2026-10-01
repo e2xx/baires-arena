@@ -4,3 +4,5 @@ out/
 *.exe
 *.pdb
 
+autoexec.cfg
+server.cfg
