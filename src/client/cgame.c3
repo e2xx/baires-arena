@@ -35,6 +35,7 @@ struct Cgame
 	float step_acc;
 	float[defs::MAX_PLAYERS] other_step_acc;
 	bool show_scores;
+	int follow;          // slot whose eyes the camera uses while spectating (-1 = none)
 }
 
 fn void Cgame.init(&self, Map* m, Renderer* gfx, int slot)
@@ -44,8 +45,9 @@ fn void Cgame.init(&self, Map* m, Renderer* gfx, int slot)
 	self.gfx = gfx;
 	self.slot = slot;
 	self.wanted = MACHINEGUN;
-	self.sensitivity = 1.0f;
+	self.sensitivity = 3.0f;
 	self.fov = 100.0f;
+	self.follow = -1;
 	self.fx.init();
 }
 
@@ -72,7 +74,7 @@ fn void Cgame.look(&self, bool enabled)
 {
 	if (!enabled) return;
 	RLVector2 md = rl::get_mouse_delta();
-	float scale = 0.0022f * self.sensitivity;
+	float scale = 0.022f * mathx::DEG * self.sensitivity;   // Quake III m_yaw/m_pitch
 	self.yaw = mathx::wrap_angle(self.yaw - md.x * scale);
 	self.pitch = math::clamp(self.pitch + md.y * scale, -MAX_PITCH, MAX_PITCH);
 
@@ -374,7 +376,7 @@ fn void Cgame.draw(&self, Snapshot* view, PlayerState* ps, float dt, int screen_
 	self.gfx.draw_world();
 	self.gfx.draw_items(view);
 	self.gfx.draw_teleports();
-	self.gfx.draw_players(view, self.slot, dt);
+	self.gfx.draw_players(view, self.slot >= 0 ? self.slot : self.follow, dt);
 	self.gfx.draw_projectiles(view);
 	self.fx.draw(cam);
 	if (self.slot >= 0 && !ps.flags.dead)
@@ -383,5 +385,5 @@ fn void Cgame.draw(&self, Snapshot* view, PlayerState* ps, float dt, int screen_
 	}
 	rl::end_mode3d();
 
-	hud::draw(&self.cur, screen_w, screen_h, dt, self.show_scores || self.cur.phase == INTERMISSION);
+	if (self.slot >= 0) hud::draw(&self.cur, screen_w, screen_h, dt, self.show_scores || self.cur.phase == INTERMISSION);
 }

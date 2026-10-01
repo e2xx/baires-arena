@@ -37,6 +37,7 @@ uniform float time;
 uniform vec4 dynPos[16];
 uniform vec4 dynColor[16];
 uniform int dynCount;
+uniform float exposure;
 vec3 dynamicLight(vec3 p, vec3 n)
 {
     vec3 sum = vec3(0.0);
@@ -55,6 +56,7 @@ vec3 finish(vec3 c, vec3 p)
 {
     float dist = length(camPos - p);
     float fog = 1.0 - exp(-dist * fogDensity);
+    c *= exposure;
     c = c * (1.0 + c / 6.0) / (1.0 + c);
     return mix(c, fogColor, clamp(fog, 0.0, 1.0));
 }
@@ -160,6 +162,7 @@ struct Uniforms
 	int dyn_count;
 	int emissive;
 	int probe;
+	int exposure;
 }
 
 struct Renderer
@@ -177,6 +180,7 @@ struct Renderer
 	RLMesh sphere;
 	float[defs::MAX_PLAYERS] run_phase;
 	float time;
+	float exposure;
 }
 
 fn Uniforms locate(RLShader s) @local
@@ -184,7 +188,7 @@ fn Uniforms locate(RLShader s) @local
 	return {
 		s.get_location("camPos"), s.get_location("fogColor"), s.get_location("fogDensity"), s.get_location("time"),
 		s.get_location("dynPos"), s.get_location("dynColor"), s.get_location("dynCount"),
-		s.get_location("emissive"), s.get_location("probe"),
+		s.get_location("emissive"), s.get_location("probe"), s.get_location("exposure"),
 	};
 }
 
@@ -296,6 +300,7 @@ fn Renderer* create(Map* m, Baked* baked)
 	}
 	r.object_mat = rl::load_material_default();
 	r.object_mat.shader = r.object_shader;
+	r.exposure = 1.0f;
 	r.cube = rl::gen_mesh_cube(1, 1, 1);
 	r.sphere = rl::gen_mesh_sphere(0.5f, 12, 16);
 	return r;
@@ -322,6 +327,7 @@ fn void Renderer.set_common(&self, RLShader s, Uniforms* u, RLCamera3D cam, DynL
 	s.set_value(u.fog_color, &m.fog_color, VEC3);
 	s.set_value(u.fog_density, &density, FLOAT);
 	s.set_value(u.time, &self.time, FLOAT);
+	s.set_value(u.exposure, &self.exposure, FLOAT);
 	float[<4>][fx::MAX_DYN_LIGHTS] pos;
 	float[<4>][fx::MAX_DYN_LIGHTS] col;
 	int n = (int)math::min(lights.len, (sz)fx::MAX_DYN_LIGHTS);

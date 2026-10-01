@@ -21,6 +21,7 @@ enum Mode : char (String label)
 // Called every server tick before World.step: the app drives bots here.
 alias BotHook = fn void(World* w, void* ctx);
 alias PrintFn = fn void(String text);
+alias CleanupFn = fn void(void* ctx);
 
 struct Session
 {
@@ -55,7 +56,10 @@ struct Session
 
 	BotHook bot_hook;
 	void* bot_ctx;
+	CleanupFn bot_cleanup;
 	PrintFn printer;
+	float follow_time;
+	int follow_seed;
 }
 
 fn Map*? load_map(String id)
@@ -132,6 +136,29 @@ fn Session*? start_offline(String map_id, String player_name, char color)
 	return s;
 }
 
+<*
+ Menu background: bots play on their own and the camera rides along with one of them.
+*>
+fn Session*? start_attract(String map_id)
+{
+	Session* s = mem::new(Session);
+	s.mode = OFFLINE;
+	s.me = -1;
+	if (catch err = s.load_view(map_id))
+	{
+		free(s);
+		return err~;
+	}
+	s.world = world::create(s.map);
+	s.world.timelimit = 0;
+	s.world.fraglimit = 1000;
+	s.cg.slot = -1;
+	s.cur.from_world(s.world, -1, 0);
+	s.prev = s.cur;
+	s.cg.on_snapshot(&s.cur);
+	return s;
+}
+
 fn Session*? start_host(String map_id, String player_name, char color, ServerConfig cfg)
 {
 	Map* sm = load_map(map_id)!;
@@ -168,6 +195,7 @@ fn Session*? start_remote(String address, String player_name, char color)
 
 fn void Session.free(&self)
 {
+	if (self.bot_cleanup) self.bot_cleanup(self.bot_ctx);
 	if (self.net) self.net.disconnect();
 	if (self.server)
 	{
@@ -269,7 +297,7 @@ fn void Session.frame_offline(&self, float dt, bool input, int screen_w, int scr
 	while (self.acc >= defs::TICK_DT && ticks < 8)
 	{
 		UserCmd cmd = self.cg.make_cmd(input);
-		self.world.run_cmd(self.me, cmd);
+		if (self.me >= 0) self.world.run_cmd(self.me, cmd);
 		if (self.bot_hook) self.bot_hook(self.world, self.bot_ctx);
 		self.world.step();
 		self.prev = self.cur;
@@ -281,9 +309,46 @@ fn void Session.frame_offline(&self, float dt, bool input, int screen_w, int scr
 	if (ticks == 8) self.acc = 0;
 
 	snap::lerp(&self.prev, &self.cur, self.acc / defs::TICK_DT, &self.view);
-	PlayerState ps = self.view.local.ps;
+	PlayerState ps = self.me >= 0 ? self.view.local.ps : self.spectator_view(dt);
 	self.cg.update(dt, &self.view);
 	self.cg.draw(&self.view, &ps, dt, screen_w, screen_h);
+}
+
+const float FOLLOW_TIME = 14.0f;
+
+<*
+ Spectator camera: rides along with a living bot, switching every FOLLOW_TIME seconds or
+ when it dies; with nobody alive it pans slowly from a spawn point.
+*>
+fn PlayerState Session.spectator_view(&self, float dt)
+{
+	Cgame* cg = &self.cg;
+	self.follow_time -= dt;
+	bool lost = cg.follow < 0 || !self.view.players[cg.follow].alive();
+	if (lost || self.follow_time <= 0)
+	{
+		self.follow_time = FOLLOW_TIME;
+		cg.follow = -1;
+		for (int k = 1; k <= defs::MAX_PLAYERS; k++)
+		{
+			int i = (self.follow_seed + k) % defs::MAX_PLAYERS;
+			if (!self.view.players[i].alive()) continue;
+			cg.follow = i;
+			self.follow_seed = i;
+			break;
+		}
+	}
+	if (cg.follow >= 0)
+	{
+		PlayerSnap* p = &self.view.players[cg.follow];
+		cg.yaw = p.yaw;
+		cg.pitch = p.pitch;
+		return { .origin = p.origin, .velocity = p.velocity, .flags = p.flags };
+	}
+	Spawn sp = self.map.spawns[self.follow_seed % self.map.spawn_count];
+	cg.yaw = sp.yaw + math::sin(cg.time * 0.15f) * 0.6f;
+	cg.pitch = 0.1f;
+	return { .origin = sp.pos, .flags = { .on_ground = true } };
 }
 
 fn void Session.handle_messages(&self)

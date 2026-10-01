@@ -79,6 +79,7 @@ fn void set_font(RLFont font)
 {
 	ui_font = font;
 	has_font = font.texture.id != 0;
+	if (has_font) font.texture.set_filter(BILINEAR);
 }
 
 fn RLFont font() @private => has_font ? ui_font : rl::get_font_default();

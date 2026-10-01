@@ -11,6 +11,7 @@ const float ROW_H = 62.0f;
 const float SCREEN_SLIDE = 0.25f;
 const String DEFAULT_NAME = "Jugador";
 const String VERSION = "v0.1 · C3 0.8.4 + raylib 6";
+const ZString KEYS_HELP = "Flechas: elegir · Enter: aceptar · Esc: volver";
 const String[5] SKILL_NAMES = { "Turista", "Aprendiz", "Habitué", "Capo", "Leyenda" };
 
 const RLColor INK @local = hud::INK;
@@ -772,9 +773,9 @@ fn void footer(MenuUi* ui, String hint) @local
 {
 	float k = ui.k;
 	float y = ui.h - 46 * k;
-	if (hint.len) hud::text(hint.zstr_tcopy(), 120 * k, y - 44 * k, 22 * k, CELESTE);
-	hud::text("Flechas: elegir · Enter: aceptar · Esc: volver", 120 * k, y, 18 * k, DIM);
-	hud::text(VERSION.zstr_tcopy(), ui.w - 40 * k, y, 18 * k, hud::with_alpha(DIM, 0.7f), RIGHT);
+	if (hint.len) hud::text(hint.zstr_tcopy(), 120 * k, y - 46 * k, 24 * k, CELESTE);
+	hud::text(KEYS_HELP, 120 * k, y, 20 * k, DIM);
+	hud::text(VERSION.zstr_tcopy(), ui.w - 40 * k, y, 20 * k, hud::with_alpha(DIM, 0.7f), RIGHT);
 }
 
 fn void player_badge(MenuUi* ui) @local
@@ -782,14 +783,16 @@ fn void player_badge(MenuUi* ui) @local
 	float k = ui.k;
 	ZString name = ui.opt.player_name().zstr_tcopy();
 	float size = 24 * k;
-	float w = hud::text_width(name, size) + 150 * k;
+	ZString lead = "Jugás como";
+	float lead_w = hud::text_width(lead, 18 * k);
+	float w = lead_w + hud::text_width(name, size) + 80 * k;
 	float h = 52 * k;
 	float x = ui.w - w - 40 * k;
 	float y = 40 * k;
 	hud::panel(x, y, w, h, PANEL, 0.3f);
-	hud::text("Jugás como", x + 16 * k, y + (h - hud::font_px(15 * k)) / 2, 15 * k, DIM);
-	hud::panel(x + 112 * k, y + h / 2 - 9 * k, 18 * k, 18 * k, hud::player_color(ui.opt.color), 0.3f);
-	hud::text(name, x + 138 * k, y + (h - hud::font_px(size)) / 2, size, INK);
+	hud::text(lead, x + 16 * k, y + (h - hud::font_px(18 * k)) / 2, 18 * k, DIM);
+	hud::panel(x + lead_w + 28 * k, y + h / 2 - 9 * k, 18 * k, 18 * k, hud::player_color(ui.opt.color), 0.3f);
+	hud::text(name, x + lead_w + 56 * k, y + (h - hud::font_px(size)) / 2, size, INK);
 }
 
 // Panel of a form screen: title, hint, and the row cursor set below them.
@@ -817,7 +820,7 @@ fn void action_row(MenuUi* ui, String label, Action action, bool enabled = true)
 	Rect r = ui.next_row(ROW_H + 6);
 	float gap = 16 * ui.k;
 	float bw = (r.width - gap) / 2;
-	if (button(ui, hud::rect(r.x, r.y, bw, r.height), label, true) && enabled) ui.action = action;
+	if (button(ui, hud::rect(r.x, r.y, bw, r.height), label, enabled ? PRIMARY : DISABLED)) ui.action = action;
 	if (button(ui, hud::rect(r.x + bw + gap, r.y, bw, r.height), "Volver")) ui.action = ui.st.back();
 }
 
@@ -840,11 +843,11 @@ fn void screen_main(MenuUi* ui) @local
 fn void screen_pause(MenuUi* ui) @local
 {
 	float k = ui.k;
-	float w = 560 * k;
-	float h = 480 * k;
+	float w = 620 * k;
+	float h = 560 * k;
 	float x = (ui.w - w) / 2;
 	float y = (ui.h - h) / 2;
-	hud::panel(x, y, w, h, PANEL, 0.05f);
+	hud::panel(x, y, w, h, hud::PANEL_SOLID, 0.05f);
 	hud::fill(x, y, w, 5 * k, CELESTE);
 	hud::text("PAUSA", ui.w / 2, y + 40 * k, 60 * k, INK, CENTER);
 	float ly = y + 140 * k;
@@ -853,7 +856,10 @@ fn void screen_pause(MenuUi* ui) @local
 		link_item(ui, l, x + 40 * k, ly, w - 80 * k, 36);
 		ly += 76 * k;
 	}
-	footer(ui, PAUSE_LINKS[wrap(ui.st.focus, PAUSE_LINKS.len)].hint);
+	// The HUD is still drawn below: hints go inside the panel, not on the screen edges.
+	String hint = PAUSE_LINKS[wrap(ui.st.focus, PAUSE_LINKS.len)].hint;
+	hud::text(hint.zstr_tcopy(), ui.w / 2, y + h - 76 * k, 20 * k, CELESTE, CENTER);
+	hud::text(KEYS_HELP, ui.w / 2, y + h - 40 * k, 18 * k, DIM, CENTER);
 }
 
 fn void screen_setup(MenuUi* ui, String[] maps, bool host) @local
@@ -934,7 +940,7 @@ fn void server_list(MenuUi* ui, LanServer[] lan) @local
 fn void screen_join(MenuUi* ui, LanServer[] lan) @local
 {
 	Options* o = ui.opt;
-	begin_panel(ui, JOIN, MAX_LAN_ROWS + 4.6f);
+	begin_panel(ui, JOIN, MAX_LAN_ROWS + 3.9f);
 	server_list(ui, lan);
 	Rect r = ui.next_row();
 	if (button(ui, hud::rect(r.x, r.y, 260 * ui.k, r.height), Action.REFRESH_LAN.label)) ui.action = REFRESH_LAN;
