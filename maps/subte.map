@@ -1,0 +1,297 @@
+# Baires Arena — "Subte Línea A, estación Perú"
+# Dos andenes laterales con borde amarillo, foso de vías hundido en el medio (1.5 m: se sale por
+# escaleras en los extremos, jump pads hacia las galerías o los túneles), entrepisos (mezzanine) en
+# ambos extremos sobre las vías, galerías de boletería al norte y al sur que miran al andén.
+# Se declara el cuadrante x>=0, z>=0 y se espeja en x y en z; lo único (armas, vagones) va al final.
+# Ejes: x a lo largo de las vías, z cruzando, y arriba. Andén y=0, vías y=-1.5, entrepiso y=4.5.
+
+name "Subte Linea A - Peru"
+sky 0 0 0
+fog 0.03 0.045 0.04 0.012
+ambient 0.08 0.11 0.09
+sun 0.3 -1 0.2  0 0 0
+
+# ---- cáscara: piso de vías, techo, muros exteriores
+box 0 -2.5 0  49 -1.5 28  concrete
+box 0 9 0  49 10 28  concrete
+box 48 -1.5 0  49 9 28  concrete
+box 0 -1.5 27  48 9 28  concrete
+
+# ---- andén norte (z 4.5..13) con borde amarillo
+box 0 -1.5 5  36 0 13  concrete
+box 0 -1.5 4.5  36 -0.1 5  concrete
+box 0 -0.1 4.5  36 0 5  trim
+
+# ---- vías: rieles
+box 0 -1.5 1.85  31 -1.35 1.95  metal
+box 34 -1.5 1.85  47.2 -1.35 1.95  metal
+box 0 -1.5 3.25  31 -1.35 3.35  metal
+box 34 -1.5 3.25  47.2 -1.35 3.35  metal
+
+# ---- escalera vías -> andén (bajo el entrepiso)
+stairs 31 -1.5 1.5  34 0 4.5  3 +z concrete
+
+# ---- muro norte del hall: abertura a la galería de boletería y puerta al pasillo
+box 0 -1.5 13  12 2.2 14  tile_white
+box 0 2.2 13  12 2.6 14  tile_band
+box 0 2.6 13  12 4 14  tile_white
+box 0 8.6 13  12 9 14  tile_white
+box 12 -1.5 13  26 2.2 14  tile_white
+box 12 2.2 13  26 2.6 14  tile_band
+box 12 2.6 13  26 7.2 14  tile_white
+box 12 7.2 13  26 7.5 14  tile_band
+box 12 7.5 13  26 9 14  tile_white
+box 26 -1.5 13  30 2.2 14  tile_white
+box 26 2.2 13  30 2.6 14  tile_band
+box 26 2.6 13  30 4.5 14  tile_white
+box 26 8.5 13  30 9 14  tile_white
+box 30 -1.5 13  37 2.2 14  tile_white
+box 30 2.2 13  37 2.6 14  tile_band
+box 30 2.6 13  37 7.2 14  tile_white
+box 30 7.2 13  37 7.5 14  tile_band
+box 30 7.5 13  37 9 14  tile_white
+
+# ---- columnas del andén y banco, cartel PERU
+box 3.5 0 10  4.5 2.2 11  tile_white
+box 3.5 2.2 10  4.5 2.6 11  tile_band
+box 3.5 2.6 10  4.5 7.2 11  tile_white
+box 3.5 7.2 10  4.5 7.5 11  tile_band
+box 3.5 7.5 10  4.5 9 11  tile_white
+box 11.5 0 10  12.5 2.2 11  tile_white
+box 11.5 2.2 10  12.5 2.6 11  tile_band
+box 11.5 2.6 10  12.5 7.2 11  tile_white
+box 11.5 7.2 10  12.5 7.5 11  tile_band
+box 11.5 7.5 10  12.5 9 11  tile_white
+box 29.5 0 8.5  30.5 2.2 9.5  tile_white
+box 29.5 2.2 8.5  30.5 2.6 9.5  tile_band
+box 29.5 2.6 8.5  30.5 4 9.5  tile_white
+box 6 0 12.3  10 0.45 12.9  wood
+box 5.5 3 12.9  10.5 3.8 13  tile_band
+
+# ---- máquina expendedora junto a la escalera (corta la visual a lo largo del andén)
+box 19 0 6  20.5 2 6.8  metal
+box 19.1 0.9 5.95  20.4 1.8 6  light
+
+# ---- carteles colgantes PERU (cortan la visual entre entrepisos)
+box 13.9 5.4 0  14.1 6.4 4  tile_band
+box 13.95 6.4 3.4  14.05 9 3.5  metal
+box 13.9 5.4 6  14.1 6.4 10.5  tile_band
+box 13.95 6.4 9.9  14.05 9 10  metal
+box 13.95 6.4 6.5  14.05 9 6.6  metal
+
+# ---- escalera andén -> entrepiso
+stairs 16 0 9.5  24 4.5 13  10 +x concrete
+
+# ---- entrepiso (x 24..37) sobre andenes y vías
+box 24 4 0  37 4.5 13  concrete
+box 24 4.5 0  24.25 5.5 9.5  metal
+box 27.4 4.5 5.9  28.6 7.2 7.1  tile_white
+box 27.4 7.2 5.9  28.6 7.5 7.1  tile_band
+box 27.4 7.5 5.9  28.6 9 7.1  tile_white
+
+# ---- muro de fondo del hall (x 36..37): boca del túnel abajo, puerta a la escalera de servicio arriba
+box 36 -1.5 4.5  37 2.2 13  tile_white
+box 36 2.2 4.5  37 2.6 13  tile_band
+box 36 2.6 4.5  37 4 13  tile_white
+box 36 3 0  37 4 4.5  concrete
+box 36 4.5 0  37 7.2 5  tile_white
+box 36 7.2 0  37 7.5 5  tile_band
+box 36 7.5 0  37 9 5  tile_white
+box 36 8.5 5  37 9 9  tile_white
+box 36 4.5 9  37 7.2 13  tile_white
+box 36 7.2 9  37 7.5 13  tile_band
+box 36 7.5 9  37 9 13  tile_white
+
+# ---- túnel (x 37..44) y escalera de servicio paralela (z 5..9) que sube al entrepiso
+box 37 3 0  44 9 4.5  concrete
+box 37 -1.5 4.5  44 9 5  concrete
+stairs 37 -1.5 5  44 4.5 9  12 -x concrete
+box 37 -1.5 9  48 9 10  concrete
+
+# ---- pasillo transversal al fondo del túnel (x 44..48), paragolpes
+box 47.2 -1.5 1.4  48 -0.6 3.8  metal
+
+# ---- balcón de la galería sobre el andén
+box 0 4 11  12 4.5 14  concrete
+box 0 4.5 11  12 5.5 11.2  metal
+box 11.8 4.5 11.2  12 5.5 13  metal
+
+# ---- galería de boletería (x 0..17, z 14..26) y pasillo al entrepiso (x 17..32, z 14..18)
+box 0 4 14  16 4.5 26  concrete
+box 16 4 14  31 4.5 18  concrete
+box 0 4 26  17 7.2 27  tile_white
+box 0 7.2 26  17 7.5 27  tile_band
+box 0 7.5 26  17 9 27  tile_white
+box 16 4 18  17 7.2 26  tile_white
+box 16 7.2 18  17 7.5 26  tile_band
+box 16 7.5 18  17 9 26  tile_white
+box 17 4 18  32 7.2 19  tile_white
+box 17 7.2 18  32 7.5 19  tile_band
+box 17 7.5 18  32 9 19  tile_white
+box 31 4 14  32 7.2 18  tile_white
+box 31 7.2 14  32 7.5 18  tile_band
+box 31 7.5 14  32 9 18  tile_white
+
+# ---- molinetes
+box 1.5 4.5 18  3.5 5.5 18.6  metal
+box 5 4.5 18  7 5.5 18.6  metal
+box 8.5 4.5 18  10.5 5.5 18.6  metal
+
+# ---- escalera a la calle (cerrada por una persiana)
+stairs 0 4.5 22  3 5.5 25  2 +z concrete
+box 0 4.5 25  3 5.5 26  concrete
+box 3 4.5 22  3.5 7.2 26  tile_white
+box 3 7.2 22  3.5 7.5 26  tile_band
+box 3 7.5 22  3.5 9 26  tile_white
+box 0 5.5 25.85  2.9 8.6 26  metal
+
+# ---- luces: tubos fluorescentes
+box 1.5 8.88 8.2  4.5 9 8.8  light
+light 3 8.4 8.5  1.2 1.5 1.29  13
+box 7.5 8.88 8.2  10.5 9 8.8  light
+light 9 8.4 8.5  1.2 1.5 1.29  13
+box 13.5 8.88 8.2  16.5 9 8.8  light
+light 15 8.4 8.5  1.2 1.5 1.29  13
+box 19.5 8.88 8.2  22.5 9 8.8  light
+light 21 8.4 8.5  1.2 1.5 1.29  13
+box 4.5 8.88 2.3  7.5 9 2.9  light
+light 6 8.4 2.6  0.88 1.1 0.946  13
+box 16.5 8.88 2.3  19.5 9 2.9  light
+light 18 8.4 2.6  0.88 1.1 0.946  13
+box 25.5 3.88 8.2  28.5 4 8.8  light
+light 27 3.4 8.5  0.96 1.2 1.032  9
+box 31.5 3.88 8.2  34.5 4 8.8  light
+light 33 3.4 8.5  0.96 1.2 1.032  9
+box 28.5 3.88 2.3  31.5 4 2.9  light
+light 30 3.4 2.6  0.8 1 0.86  9
+box 28.5 8.88 3.7  31.5 9 4.3  light
+light 30 8.4 4  1.2 1.5 1.29  12
+box 28.5 8.88 10.2  31.5 9 10.8  light
+light 30 8.4 10.5  1.2 1.5 1.29  12
+box 2.5 8.88 20.7  5.5 9 21.3  light
+light 4 8.4 21  0.96 1.2 1.032  11
+box 10.5 8.88 20.7  13.5 9 21.3  light
+light 12 8.4 21  0.96 1.2 1.032  11
+box 6.5 8.88 15.2  9.5 9 15.8  light
+light 8 8.4 15.5  0.96 1.2 1.032  11
+box 19.5 8.88 15.7  22.5 9 16.3  light
+light 21 8.4 16  0.88 1.1 0.946  10
+box 26.5 8.88 15.7  29.5 9 16.3  light
+light 28 8.4 16  0.88 1.1 0.946  10
+box 39 8.88 6.7  42 9 7.3  light
+light 40.5 8.4 7  0.8 1 0.86  10
+box 45.7 8.88 3  46.3 9 6  light
+light 46 8.4 4.5  0.8 1 0.86  11
+box 43.6 1 4.3  43.9 1.5 4.5  light
+light 43.3 1.25 4  1.6 0.15 0.1  7
+light 40.5 2.4 2.6  0.5 0.65 0.55  8
+
+# ---- spawns
+spawn 8 0 10.6  180
+spawn 33 0 8  270
+spawn 29 4.5 3  270
+spawn 10 4.5 22  180
+
+# ---- items espejados
+item health 14 0 7
+item health 36.5 4.5 7
+item armor_shard 4 4.5 12.2
+item armor_shard 8 4.5 12.2
+
+mirror x
+
+# ---- centrado en x=0 (se espeja solo en z)
+item armor_yellow 0 5.5 25.4
+
+mirror z
+
+# ---- jump pads: vías -> galerías (norte y sur)
+jumppad 6 -1.5 0  6 6.3 12.5
+jumppad -10 -1.5 0  -10 6.3 12.5
+jumppad -6 -1.5 0  -6 6.3 -12.5
+jumppad 10 -1.5 0  10 6.3 -12.5
+
+# ---- vagones detenidos (madera, Línea A): sudeste y noroeste
+box 14.2 -1.35 -4  16.7 -0.9 -1.9  metal
+box 25.3 -1.35 -4  27.8 -0.9 -1.9  metal
+box 13 -0.9 -4.4  29 0 -1.5  metal
+box 13 2.6 -4.4  29 2.9 -1.5  metal
+box 13 0 -4.4  13.15 2.6 -1.5  wood
+box 28.85 0 -4.4  29 2.6 -1.5  wood
+box 13.15 0 -4.4  15.35 2.6 -4.25  wood
+box 15.35 2.1 -4.4  16.65 2.6 -4.25  wood
+box 16.65 0 -4.4  20.35 2.6 -4.25  wood
+box 20.35 2.1 -4.4  21.65 2.6 -4.25  wood
+box 21.65 0 -4.4  25.35 2.6 -4.25  wood
+box 25.35 2.1 -4.4  26.65 2.6 -4.25  wood
+box 26.65 0 -4.4  28.85 2.6 -4.25  wood
+box 13.15 0 -1.65  15.35 2.6 -1.5  wood
+box 15.35 2.1 -1.65  16.65 2.6 -1.5  wood
+box 16.65 0 -1.65  20.35 2.6 -1.5  wood
+box 20.35 2.1 -1.65  21.65 2.6 -1.5  wood
+box 21.65 0 -1.65  25.35 2.6 -1.5  wood
+box 25.35 2.1 -1.65  26.65 2.6 -1.5  wood
+box 26.65 0 -1.65  28.85 2.6 -1.5  wood
+box 17 2.5 -3.1  19 2.6 -2.8  light
+light 18 2.1 -2.95  1.2 0.85 0.5  6
+box 23 2.5 -3.1  25 2.6 -2.8  light
+light 24 2.1 -2.95  1.2 0.85 0.5  6
+box -27.8 -1.35 1.9  -25.3 -0.9 4  metal
+box -16.7 -1.35 1.9  -14.2 -0.9 4  metal
+box -29 -0.9 1.5  -13 0 4.4  metal
+box -29 2.6 1.5  -13 2.9 4.4  metal
+box -29 0 1.5  -28.85 2.6 4.4  wood
+box -13.15 0 1.5  -13 2.6 4.4  wood
+box -28.85 0 1.5  -26.65 2.6 1.65  wood
+box -26.65 2.1 1.5  -25.35 2.6 1.65  wood
+box -25.35 0 1.5  -21.65 2.6 1.65  wood
+box -21.65 2.1 1.5  -20.35 2.6 1.65  wood
+box -20.35 0 1.5  -16.65 2.6 1.65  wood
+box -16.65 2.1 1.5  -15.35 2.6 1.65  wood
+box -15.35 0 1.5  -13.15 2.6 1.65  wood
+box -28.85 0 4.25  -26.65 2.6 4.4  wood
+box -26.65 2.1 4.25  -25.35 2.6 4.4  wood
+box -25.35 0 4.25  -21.65 2.6 4.4  wood
+box -21.65 2.1 4.25  -20.35 2.6 4.4  wood
+box -20.35 0 4.25  -16.65 2.6 4.4  wood
+box -16.65 2.1 4.25  -15.35 2.6 4.4  wood
+box -15.35 0 4.25  -13.15 2.6 4.4  wood
+box -25 2.5 2.8  -23 2.6 3.1  light
+light -24 2.1 2.95  1.2 0.85 0.5  6
+box -19 2.5 2.8  -17 2.6 3.1  light
+light -18 2.1 2.95  1.2 0.85 0.5  6
+
+# ---- boletería (norte) y kiosco (sur)
+box -2 4.5 19.6  2 7 21.4  wood
+box -2.2 7 19.4  2.2 7.2 21.6  metal
+box -1.8 5.6 19.5  1.8 6.4 19.6  light
+light 0 6 18.9  1.3 1.1 0.8  7
+box -1.5 4.5 -21.4  1.5 6.6 -19.6  metal
+box -1.7 6.6 -21.6  1.7 6.8 -19.4  tile_band
+light 0 7.4 -19  1 1 0.8  7
+
+# ---- casillas de control sobre los puentes del entrepiso (cubren la visual a lo largo de las vías)
+box 30.5 4.5 -1.5  33.5 7 1.5  metal
+box 30.4 5.6 -1.2  30.5 6.4 1.2  light
+light 29.6 6 0  0.9 1.1 0.95  6
+box -30.5 4.5 -1.5  -33.5 7 1.5  metal
+box -30.4 5.6 -1.2  -30.5 6.4 1.2  light
+light -29.6 6 0  0.9 1.1 0.95  6
+
+# ---- items únicos
+item mega 0 -1.5 0
+item rocket 0 4.5 12.6
+item ammo_rocket 0 4.5 -12.6
+item ammo_rocket -46 -1.5 6
+item rail 35 4.5 0
+item ammo_rail -35 4.5 0
+item ammo_rail 28 4.5 -16
+item shotgun 21 0 -2.95
+item ammo_shotgun -21 0 2.95
+item ammo_shotgun 22.5 0 -7.5
+item health_big 46 -1.5 0
+item health_big -46 -1.5 0
+item armor_shard 15 2.9 -2.95
+item armor_shard 20.5 2.9 -2.95
+item armor_shard -15 2.9 2.95
+item armor_shard -20.5 2.9 2.95

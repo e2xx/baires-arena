@@ -28,8 +28,8 @@ fn void parse_counts() @test
 	Map* m = load_room();
 	defer m.free();
 	assert(m.name() == "Caja de prueba");
-	// 3 boxes + 3 stair steps + 1 pad brush = 7, mirrored = 14.
-	assert(m.brush_count == 14, "brushes: %d", m.brush_count);
+	// 3 boxes + 3 stair steps + 1 pad brush = 7; mirrored minus the x-symmetric floor = 13.
+	assert(m.brush_count == 13, "brushes: %d", m.brush_count);
 	assert(m.spawn_count == 2);
 	assert(m.item_count == 2);
 	assert(m.pad_count == 2);

@@ -1,0 +1,335 @@
+# Baires Arena — "Dársena Sur"
+# Playa de contenedores de noche: pilas de 1 a 3 niveles (2.6 / 5.2 / 7.8 m) que forman calles,
+# pasarelas de chapa entre las pilas, un pórtico grúa en el centro con pasarela a 9 m (jump pads en
+# las puntas), muelle con el casco de un buque al norte y un depósito de ladrillo con andén de carga
+# al sur (adentro: entrepiso de chapa y lanzacohetes). Torres de reflectores, luz dura.
+# Se declara la mitad x>=0 y se espeja en x; el pórtico, el buque y el depósito van después.
+
+name "Darsena Sur"
+sky 0.015 0.02 0.045
+fog 0.03 0.04 0.06 0.010
+ambient 0.07 0.08 0.10
+sun -0.30 -1 0.40  0.07 0.08 0.13
+
+# ---- piso del muelle y techo invisible
+box 0 -1 -47  41 0 33  concrete
+box 0 30 -47  41 31 33  clip
+
+# ---- borde este: muro de contenedores apilados (5 niveles) + clip
+box 38 0 -26  40.5 2.6 -13.8  container_red
+box 38 2.6 -26  40.5 5.2 -13.8  container_blue
+box 38 5.2 -26  40.5 7.8 -13.8  container_red
+box 38 7.8 -26  40.5 10.4 -13.8  container_blue
+box 38 10.4 -26  40.5 13 -13.8  container_blue
+box 38 0 -13.8  40.5 2.6 -1.6  container_red
+box 38 2.6 -13.8  40.5 5.2 -1.6  container_red
+box 38 5.2 -13.8  40.5 7.8 -1.6  container_red
+box 38 7.8 -13.8  40.5 10.4 -1.6  container_red
+box 38 10.4 -13.8  40.5 13 -1.6  container_blue
+box 38 0 -1.6  40.5 2.6 10.6  container_blue
+box 38 2.6 -1.6  40.5 5.2 10.6  container_red
+box 38 5.2 -1.6  40.5 7.8 10.6  container_red
+box 38 7.8 -1.6  40.5 10.4 10.6  container_blue
+box 38 10.4 -1.6  40.5 13 10.6  container_blue
+box 38 0 10.6  40.5 2.6 22.8  container_red
+box 38 2.6 10.6  40.5 5.2 22.8  container_red
+box 38 5.2 10.6  40.5 7.8 22.8  container_blue
+box 38 7.8 10.6  40.5 10.4 22.8  container_red
+box 38 10.4 10.6  40.5 13 22.8  container_red
+box 38 0 22.8  40.5 2.6 30  container_blue
+box 38 2.6 22.8  40.5 5.2 30  container_blue
+box 38 5.2 22.8  40.5 7.8 30  container_red
+box 38 7.8 22.8  40.5 10.4 30  container_red
+box 38 10.4 22.8  40.5 13 30  container_blue
+box 38 13 -26  40.5 30 30  clip
+
+# ---- pila NE (x 8..20): fila baja a 2.6 y dos filas a 5.2
+box 8 0 10  20 2.6 12.5  container_blue
+box 8 0 12.5  20 2.6 15  container_blue
+box 8 2.6 12.5  20 5.2 15  container_red
+box 8 0 15  20 2.6 17.5  container_blue
+box 8 2.6 15  20 5.2 17.5  container_blue
+
+# ---- fila N (x 12..24) a 2.6, calle entre medio
+box 12 0 21  24 2.6 23.5  container_red
+
+# ---- torre E (x 26..38): 2-3-2 niveles
+box 26 0 -3.75  38 2.6 -1.25  container_red
+box 26 2.6 -3.75  38 5.2 -1.25  container_red
+box 26 0 -1.25  38 2.6 1.25  container_blue
+box 26 2.6 -1.25  38 5.2 1.25  container_blue
+box 26 5.2 -1.25  38 7.8 1.25  container_red
+box 26 0 1.25  38 2.6 3.75  container_blue
+box 26 2.6 1.25  38 5.2 3.75  container_red
+
+# ---- pila SE (x 8..20): dos filas a 2.6 y una a 5.2
+box 8 0 -17.5  20 2.6 -15  container_blue
+box 8 0 -15  20 2.6 -12.5  container_blue
+box 8 0 -12.5  20 2.6 -10  container_red
+box 8 2.6 -12.5  20 5.2 -10  container_blue
+
+# ---- fila SE lejana (x 26..38) a 2.6
+box 26 0 -20  38 2.6 -17.5  container_blue
+box 26 0 -17.5  38 2.6 -15  container_blue
+
+# ---- contenedor abierto que se atraviesa (x 10..22, centro)
+box 10 2.4 -1.25  22 2.6 1.25  container_red
+box 10 0 -1.25  22 2.4 -1.1  container_red
+box 10 0 1.1  22 2.4 1.25  container_red
+box 15.5 2.25 -0.2  16.5 2.4 0.2  light
+light 16 1.9 0  0.9 0.75 0.5  6
+
+# ---- jump pad a la salida del contenedor abierto: sube a la torre E (armadura amarilla)
+jumppad 24 0 0  26.6 11 0
+
+# ---- escaleras de chapa
+stairs 4.5 0 10  8 2.6 12.5  6 +x metal
+stairs 14 2.6 10  20 5.2 12.5  6 +x metal
+stairs 20 0 -17.5  23.5 2.6 -15  6 -x metal
+stairs 8 2.6 -15  14 5.2 -12.5  6 -x metal
+stairs 32 5.2 1.25  38 7.8 3.75  6 -x metal
+stairs 24 0 21  27.5 2.6 23.5  6 -x metal
+
+# ---- pasarelas a 5.2: pila NE <-> torre E <-> pila SE
+box 20 4.95 12.5  26 5.2 14.5  metal
+box 24 4.95 1.25  26 5.2 12.5  metal
+box 20 4.95 -12.5  26 5.2 -10.5  metal
+box 24 4.95 -10.5  26 5.2 -1.25  metal
+
+# ---- cajones de madera (cobertura y escalones)
+box 5 0 -6  6.3 1.3 -4.7  wood
+box 22.5 0 5  23.8 1.3 6.3  wood
+box 23.9 0 5  25.2 1 6.3  wood
+box 27 0 15.5  28.3 1.3 16.8  wood
+box 28.4 0 15.5  29.7 1.3 16.8  wood
+box 27.6 1.3 15.7  28.9 2.6 17  wood
+box 32 0 -9  33.3 1.3 -7.7  wood
+box 14 0 -23  15.3 1 -21.7  wood
+box 24.5 0 -18  25.8 1.3 -16.7  wood
+
+# ---- patas del pórtico grúa
+box 3 0 15  4 10 16  metal
+box 2.5 0 14.7  4.5 0.6 16.3  container_red
+box 3 0 -16  4 10 -15  metal
+box 2.5 0 -16.3  4.5 0.6 -14.7  container_red
+box 2.5 7.6 -15.5  3.5 8.6 15.5  metal
+
+# ---- bitas del muelle norte
+box 17.7 0 28.6  18.3 0.7 29.2  metal
+box 29.7 0 28.6  30.3 0.7 29.2  metal
+
+# ---- contenedores sueltos en el muelle y en la esquina NE
+box 30 0 12  36 2.6 14.5  container_red
+box 4.5 0 -23.5  5.8 1.3 -22.2  wood
+
+# ---- torres de reflectores
+box 21.7 0 25.7  22.3 15.9 26.3  metal
+box 20.8 16 25.5  23.2 17 26.5  metal
+box 21 15.9 25.6  23 16 26.4  light
+light 22 15 26  2.1 2.1 1.95  36
+box 30.7 0 -23.8  31.3 15.9 -23.2  metal
+box 29.8 16 -24  32.2 17 -23  metal
+box 30 15.9 -23.9  32 16 -23.1  light
+light 31 15 -23.5  2.1 2.1 1.95  36
+box 32.7 0 8.7  33.3 13.9 9.3  metal
+box 31.8 14 8.5  34.2 15 9.5  metal
+box 32 13.9 8.6  34 14 9.4  light
+light 33 13 9  1.89 1.89 1.755  30
+light 33 9.5 0  1.2 1.2 1.1  14
+
+# ---- faroles de trabajo sobre las pasarelas y en los muros de contenedores
+box 24 5.2 7.9  24.2 7.8 8.1  metal
+box 23.8 7.8 7.7  24.6 8 8.3  light
+light 24.6 7.4 8  1.4 1.3 1.1  11
+box 24 5.2 -6.1  24.2 7.8 -5.9  metal
+box 23.8 7.8 -6.3  24.6 8 -5.7  light
+light 24.6 7.4 -6  1.4 1.3 1.1  11
+box 37.9 6 -14.3  38 6.5 -13.7  light
+light 37.3 6 -14  1.5 0.93 0.45  14
+box 37.9 6 17.7  38 6.5 18.3  light
+light 37.3 6 18  1.5 0.93 0.45  14
+light 16 4 0  0.9 0.9 1  9
+
+# ---- faroles de sodio en las calles
+box 5.9 0 18.9  6.1 5.5 19.1  metal
+box 5.65 5.5 18.65  6.35 5.7 19.35  light
+light 6 5.1 19  1.8 1.116 0.54  13
+box 10.9 0 -20.6  11.1 5.5 -20.4  metal
+box 10.65 5.5 -20.85  11.35 5.7 -20.15  light
+light 11 5.1 -20.5  1.8 1.116 0.54  13
+box 36.4 2.6 -16.1  36.6 8.1 -15.9  metal
+box 36.15 8.1 -16.35  36.85 8.3 -15.65  light
+light 36.5 7.7 -16  1.8 1.116 0.54  13
+box 21.9 0 8.4  22.1 5.5 8.6  metal
+box 21.65 5.5 8.15  22.35 5.7 8.85  light
+light 22 5.1 8.5  1.8 1.116 0.54  13
+light 14 2 19.2  0.8 0.8 0.9  8
+
+# ---- spawns
+spawn 5 0 6  250
+spawn 16 0 26.5  200
+spawn 13 5.2 15  270
+spawn 33 5.2 -2.5  270
+spawn 17 0 -23.5  340
+spawn 30 0 9  240
+spawn 17 0 0  270
+
+# ---- items espejados
+item health_big 12.5 0 0
+item health 10 0 19.2
+item health 22 0 -8
+item armor_shard 25 5.2 8
+item armor_shard 25 5.2 -7
+item armor_yellow 31 7.8 0
+item ammo_rail 11 5.2 16.5
+
+mirror x
+
+# ---- pórtico grúa: pasarela a 9 m (centrada en x=0) con cabina colgante
+box -3.5 8.6 -15.8  3.5 9 15.8  metal
+box -2.4 6.6 -1.6  2.4 8.6 1.6  container_blue
+box -2 7.2 -1.65  2 8 -1.6  light
+box -2 7.2 1.6  2 8 1.65  light
+light 0 6 -2.2  1.1 1 0.8  9
+light 0 6 2.2  1.1 1 0.8  9
+box 3.2 10 15.2  3.8 10.4 15.8  light
+light 3.5 10.9 15.5  2 0.1 0.05  6
+box -3.8 10 15.2  -3.2 10.4 15.8  light
+light -3.5 10.9 15.5  2 0.1 0.05  6
+box 3.2 10 -15.8  3.8 10.4 -15.2  light
+light 3.5 10.9 -15.5  2 0.1 0.05  6
+box -3.8 10 -15.8  -3.2 10.4 -15.2  light
+light -3.5 10.9 -15.5  2 0.1 0.05  6
+
+# ---- jump pads a las puntas de la pasarela
+jumppad 0 0 23  0 11 13
+jumppad 0 0 -23  0 11 -13
+
+# ---- buque amarrado (casco al norte) con contenedores en cubierta
+box -41 0 30  41 1.6 32  container_red
+box -41 1.6 30  41 14 32  container_blue
+box -41 14 30  41 14.4 33  metal
+box -40 14.4 31  -27.8 17 33  container_blue
+box -40 17 31  -27.8 19.6 33  container_red
+box -40 19.6 31  -27.8 22.2 33  container_red
+box -27.8 14.4 31  -15.6 17 33  container_blue
+box -27.8 17 31  -15.6 19.6 33  container_red
+box -15.6 14.4 31  -3.4 17 33  container_red
+box -3.4 14.4 31  8.8 17 33  container_blue
+box -3.4 17 31  8.8 19.6 33  container_blue
+box -3.4 19.6 31  8.8 22.2 33  container_blue
+box 8.8 14.4 31  21 17 33  container_red
+box 8.8 17 31  21 19.6 33  container_red
+box 21 14.4 31  33.2 17 33  container_red
+box 21 17 31  33.2 19.6 33  container_blue
+box 21 19.6 31  33.2 22.2 33  container_blue
+box 33.2 14.4 31  40 17 33  container_blue
+box 33.2 17 31  40 19.6 33  container_blue
+box -41 14.4 30  41 30 33  clip
+
+# ---- luces de cubierta del buque
+box -24.5 11.5 29.9  -23.5 12.2 30  light
+light -24 11.8 28.8  1.4 1.35 1.2  16
+box -0.5 11.5 29.9  0.5 12.2 30  light
+light 0 11.8 28.8  1.4 1.35 1.2  16
+box 23.5 11.5 29.9  24.5 12.2 30  light
+light 24 11.8 28.8  1.4 1.35 1.2  16
+
+# ---- pasarela del buque: escaleras por el casco hasta una planchada a 5.2 m
+stairs -14 0 27.5  -6 5.2 30  12 +x metal
+stairs 6 0 27.5  14 5.2 30  12 -x metal
+box -6 4.9 27.5  6 5.2 30  metal
+box -6 5.2 27.4  6 6.2 27.5  metal
+box -1.5 5.2 29.95  1.5 7.6 30  light
+light 0 7.2 28.5  1.3 1.2 1  10
+
+# ---- andén de carga (1.2 m) y fachada del depósito de ladrillo al sur
+box -38 0 -30  38 1.2 -26.4  concrete
+box -38 0 -26.4  38 1.2 -26  trim
+stairs 16 0 -26  19 1.2 -24.5  3 -z concrete
+stairs -19 0 -26  -16 1.2 -24.5  3 -z concrete
+box -38 1.2 -31  -12 14 -30  brick
+box -12 5 -31  -9 14 -30  brick
+box -9 1.2 -31  -4 14 -30  brick
+box -4 6.5 -31  4 14 -30  brick
+box 4 1.2 -31  9 14 -30  brick
+box 9 5 -31  12 14 -30  brick
+box 12 1.2 -31  38 14 -30  brick
+box -38 0 -31  38 1.2 -30  brick
+box -38 14 -31  38 30 -30  clip
+box -26.4 7 -30  -25.6 7.6 -29.95  light
+light -26 6.8 -29.2  1.6 0.992 0.48  13
+box -14.4 7 -30  -13.6 7.6 -29.95  light
+light -14 6.8 -29.2  1.6 0.992 0.48  13
+box 13.6 7 -30  14.4 7.6 -29.95  light
+light 14 6.8 -29.2  1.6 0.992 0.48  13
+box 25.6 7 -30  26.4 7.6 -29.95  light
+light 26 6.8 -29.2  1.6 0.992 0.48  13
+box -34.8 8.5 -30  -33.2 11 -29.96  light
+box -30.8 8.5 -30  -29.2 11 -29.96  light
+box -22.8 8.5 -30  -21.2 11 -29.96  light
+box -18.8 8.5 -30  -17.2 11 -29.96  light
+box 17.2 8.5 -30  18.8 11 -29.96  light
+box 21.2 8.5 -30  22.8 11 -29.96  light
+box 29.2 8.5 -30  30.8 11 -29.96  light
+box 33.2 8.5 -30  34.8 11 -29.96  light
+
+# ---- esquinas del andén contra los muros de contenedores
+box 38 0 -31  41 14 -26  concrete
+box -41 0 -31  -38 14 -26  concrete
+box 38 14 -31  41 30 -26  clip
+box -41 14 -31  -38 30 -26  clip
+
+# ---- interior del depósito (x -14..14, z -46..-31): piso a 1.2, techo 9, entrepiso de chapa a 5.2
+box -14 0 -46  14 1.2 -31  concrete
+box -14 9 -46  14 10 -31  concrete
+box -15 0 -47  15 10 -46  brick
+box -15 0 -46  -14 10 -31  brick
+box 14 0 -46  15 10 -31  brick
+box -14 4.9 -46  14 5.2 -42  metal
+box -14 5.2 -42.1  -12 6.2 -42  metal
+box -9 5.2 -42.1  -4 6.2 -42  metal
+box 4 5.2 -42.1  9 6.2 -42  metal
+box 12 5.2 -42.1  14 6.2 -42  metal
+stairs -12 1.2 -42  -9 5.2 -36  9 -z metal
+stairs 9 1.2 -42  12 5.2 -36  9 -z metal
+
+# ---- cajones dentro del depósito
+box -5.65 1.2 -36.65  -4.35 2.5 -35.35  wood
+box -4.35 1.2 -36.65  -3.05 2.5 -35.35  wood
+box -4.95 1.2 -37.95  -3.65 3.8 -36.65  wood
+box 4.35 1.2 -38.65  5.65 2.5 -37.35  wood
+box 5.65 1.2 -38.65  6.95 2.2 -37.35  wood
+box 0.35 1.2 -34.15  1.65 2.5 -32.85  wood
+box -8.5 8.85 -36.25  -5.5 9 -35.75  light
+light -7 8.3 -36  1.7 1.55 1.15  14
+box 5.5 8.85 -36.25  8.5 9 -35.75  light
+light 7 8.3 -36  1.7 1.55 1.15  14
+box -8.5 8.85 -44.25  -5.5 9 -43.75  light
+light -7 8.3 -44  1.7 1.55 1.15  14
+box 5.5 8.85 -44.25  8.5 9 -43.75  light
+light 7 8.3 -44  1.7 1.55 1.15  14
+box -1.5 8.85 -33.25  1.5 9 -32.75  light
+light 0 8.3 -33  1.7 1.55 1.15  14
+box -2 7.2 -45.95  2 7.8 -46  light
+light 0 7 -45.2  1.4 0.9 0.5  9
+
+# ---- spawns únicos
+spawn 0 1.2 -40  0
+spawn -7 5.2 -44  20
+
+# ---- items únicos
+item armor_red 0 0 0
+item rail 0 9 -6
+item ammo_rail 0 9 6
+item rocket 0 5.2 -44.5
+item ammo_rocket -6 1.2 -40
+item ammo_rocket 34 0 26
+item shotgun -16 0 26.5
+item ammo_shotgun 6 0 -9
+item ammo_shotgun -30 0 -14
+item health -1.5 1.2 -33
+item health 0 5.2 28.7
+item armor_shard -3 5.2 28.7
+item armor_shard 3 5.2 28.7
+item health 0 0 26

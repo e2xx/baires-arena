@@ -9,7 +9,6 @@ const int MAX_PADS = 32;
 const int MAX_TELEPORTS = 32;
 const int MAX_NAME = 64;
 const float GRID_CELL = 4.0f;
-const int MAX_GRID_REFS = 65536;
 
 const float PAD_SIZE = 1.6f;
 const float PAD_HEIGHT = 0.12f;
@@ -103,7 +102,7 @@ struct Map
 	int gz;
 	Vec3 grid_origin;
 	int[] cell_start;
-	int[MAX_GRID_REFS] cell_refs;
+	int[] cell_refs;
 	int ref_count;
 }
 
@@ -134,6 +133,7 @@ fn Map*? load(String path, ParseReport* report)
 fn void Map.free(&self)
 {
 	if (self.cell_start.ptr) free(self.cell_start.ptr);
+	if (self.cell_refs.ptr) free(self.cell_refs.ptr);
 	free(self);
 }
 
@@ -241,7 +241,9 @@ fn void? Map.add_stairs(&self, Aabb box, int steps, String axis, Material mat)
 	for (int s = 0; s < steps; s++)
 	{
 		float t0 = (float)s / (float)steps;
+		// Each step is its own slab: no overlapping boxes, no coplanar faces to z-fight.
 		Aabb step = box;
+		step.min.y = box.min.y + rise * (float)s;
 		step.max.y = box.min.y + rise * (float)(s + 1);
 		switch (axis)
 		{
@@ -305,13 +307,16 @@ fn void? Map.mirror(&self, MirrorAxis axis)
 	for (int i = 0; i < n; i++)
 	{
 		Brush b = self.brushes[i];
-		self.add_brush(mirror_box(b.box, axis), b.material)!;
+		Aabb mb = mirror_box(b.box, axis);
+		if (mb.min == b.box.min && mb.max == b.box.max) continue;   // symmetric: already there
+		self.add_brush(mb, b.material)!;
 	}
 	n = self.light_count;
 	for (int i = 0; i < n; i++)
 	{
 		if (self.light_count >= MAX_LIGHTS) return TOO_MANY~;
 		Light l = self.lights[i];
+		if (mirror_point(l.pos, axis) == l.pos) continue;
 		l.pos = mirror_point(l.pos, axis);
 		self.lights[self.light_count++] = l;
 	}
@@ -327,6 +332,7 @@ fn void? Map.mirror(&self, MirrorAxis axis)
 	{
 		if (self.item_count >= defs::MAX_ITEMS) return TOO_MANY~;
 		ItemSpot it = self.items[i];
+		if (mirror_point(it.pos, axis) == it.pos) continue;
 		self.items[self.item_count++] = { it.kind, mirror_point(it.pos, axis) };
 	}
 	n = self.pad_count;
@@ -488,7 +494,9 @@ fn void Map.build_grid(&self)
 		}
 	}
 	for (int c = 0; c < cells; c++) self.cell_start[c + 1] += self.cell_start[c];
-	self.ref_count = math::min(self.cell_start[cells], MAX_GRID_REFS);
+	self.ref_count = self.cell_start[cells];
+	if (self.cell_refs.ptr) free(self.cell_refs.ptr);
+	self.cell_refs = mem::new_array(int, (sz)self.ref_count + 1);
 
 	int[] cursor = mem::new_array(int, cells);
 	defer free(cursor);
@@ -502,8 +510,7 @@ fn void Map.build_grid(&self)
 			{
 				for (int x = lo[0]; x <= hi[0]; x++)
 				{
-					int k = cursor[(z * self.gy + y) * self.gx + x]++;
-					if (k < MAX_GRID_REFS) self.cell_refs[k] = i;
+					self.cell_refs[cursor[(z * self.gy + y) * self.gx + x]++] = i;
 				}
 			}
 		}
@@ -526,8 +533,7 @@ macro void Map.@each_brush(&self, Aabb box; @body(int index))
 			for (int x = lo[0]; x <= hi[0]; x++)
 			{
 				int c = (z * self.gy + y) * self.gx + x;
-				int end = math::min(self.cell_start[c + 1], MAX_GRID_REFS);
-				for (int k = self.cell_start[c]; k < end; k++) @body(self.cell_refs[k]);
+				for (int k = self.cell_start[c]; k < self.cell_start[c + 1]; k++) @body(self.cell_refs[k]);
 			}
 		}
 	}

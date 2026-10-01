@@ -7,6 +7,7 @@ const int MAX_BRUSH_BUDGET = 1500;
 const int MAX_LIGHT_BUDGET = 200;
 const float GROUND_DEPTH = 0.6f;          // ground must be this close below a spawn
 const float ITEM_REST_TOLERANCE = 0.05f;  // items sit on the floor top
+const Vec3 ITEM_PROBE = { 0, 0.25f, 0 };   // floor probe above/below an item
 const int ENCLOSURE_RAYS = 200;
 const float ENCLOSURE_DIST = 200.0f;
 const float VOID_MAX_DIR_Y = 0.05f;       // rays at or below the horizon must hit visible geometry
@@ -20,12 +21,12 @@ alias MapCheck = fn void(Map* m, String name);
 <*
  maps/ next to test/, resolved from this file's location so the test runs from any directory.
 *>
-fn String maps_dir() => string::tformat("%s/../maps", $$FILEPATH.path_tdirname()!!);
+fn String maps_dir() @local => string::tformat("%s/../maps", $$FILEPATH.path_tdirname()!!);
 
 <*
  Loads each *.map in maps/ and runs `check` on it.
 *>
-fn int each_map(MapCheck check)
+fn int each_map(MapCheck check) @local
 {
 	int count = 0;
 	@pool()
@@ -48,16 +49,16 @@ fn int each_map(MapCheck check)
 	return count;
 }
 
-fn bool ground_below(Map* m, Vec3 pos, float depth)
+fn bool ground_below(Map* m, Vec3 pos, float depth) @local
 {
 	Vec3 start = pos + LIFT;
 	Trace tr = m.trace(start, start - (Vec3){ 0, depth + LIFT.y, 0 }, defs::PLAYER_MINS, defs::PLAYER_MAXS, PLAYER);
 	return !tr.startsolid && tr.fraction < 1.0f && tr.normal.y >= defs::MIN_WALK_NORMAL;
 }
 
-fn bool hull_free(Map* m, Vec3 pos) => !m.box_solid(pos + LIFT, defs::PLAYER_MINS, defs::PLAYER_MAXS, PLAYER);
+fn bool hull_free(Map* m, Vec3 pos) @local => !m.box_solid(pos + LIFT, defs::PLAYER_MINS, defs::PLAYER_MAXS, PLAYER);
 
-fn Vec3 fibonacci_dir(int i, int n)
+fn Vec3 fibonacci_dir(int i, int n) @local
 {
 	float golden = (float)math::PI * (3.0f - math::sqrt(5.0f));
 	float y = 1.0f - 2.0f * ((float)i + 0.5f) / (float)n;
@@ -70,7 +71,7 @@ fn Vec3 fibonacci_dir(int i, int n)
  Returns how many of the sampled rays from `eye` escape (no hit within ENCLOSURE_DIST) for the
  player mask, and how many near-horizontal rays see no visible geometry (the void).
 *>
-fn int[<2>] leaks_from(Map* m, Vec3 eye)
+fn int[<2>] leaks_from(Map* m, Vec3 eye) @local
 {
 	int[<2>] leaks;
 	for (int k = 0; k < ENCLOSURE_RAYS; k++)
@@ -86,15 +87,15 @@ fn int[<2>] leaks_from(Map* m, Vec3 eye)
 
 // ---------------------------------------------------------------- checks
 
-fn void check_budget(Map* m, String name)
+fn void check_budget(Map* m, String name) @local
 {
 	int cells = m.gx * m.gy * m.gz;
 	assert(m.brush_count <= MAX_BRUSH_BUDGET, "%s: %d brushes", name, m.brush_count);
 	assert(m.light_count <= MAX_LIGHT_BUDGET, "%s: %d lights", name, m.light_count);
-	assert(m.cell_start[cells] <= map::MAX_GRID_REFS, "%s: broadphase overflow (%d refs)", name, m.cell_start[cells]);
+	assert(m.cell_start[cells] == m.ref_count, "%s: broadphase refs mismatch (%d)", name, m.ref_count);
 }
 
-fn void check_spawns(Map* m, String name)
+fn void check_spawns(Map* m, String name) @local
 {
 	assert(m.spawn_count >= MIN_SPAWNS, "%s: only %d spawns", name, m.spawn_count);
 	for (int i = 0; i < m.spawn_count; i++)
@@ -105,13 +106,12 @@ fn void check_spawns(Map* m, String name)
 	}
 }
 
-fn void check_items(Map* m, String name)
+fn void check_items(Map* m, String name) @local
 {
 	for (int i = 0; i < m.item_count; i++)
 	{
 		ItemSpot it = m.items[i];
-		Vec3 up = { 0, 0.25f, 0 };
-		Trace tr = m.trace_ray(it.pos + up, it.pos - up, PLAYER);
+		Trace tr = m.trace_ray(it.pos + ITEM_PROBE, it.pos - ITEM_PROBE, PLAYER);
 		assert(!tr.startsolid && tr.fraction < 1.0f, "%s: item %d %s at %s floats", name, i, it.kind.id, it.pos);
 		assert(math::abs(tr.endpos.y - it.pos.y) < ITEM_REST_TOLERANCE, "%s: item %d %s at %s is not on the floor (floor %f)", name, i, it.kind.id, it.pos, tr.endpos.y);
 		assert(hull_free(m, it.pos), "%s: item %d %s at %s is inside solid", name, i, it.kind.id, it.pos);
@@ -122,7 +122,7 @@ fn void check_items(Map* m, String name)
  Flies the ballistic arc from the pad: it must pass near the apex without hitting anything first
  and come down on walkable ground that is not another pad (no ping-pong).
 *>
-fn void check_pads(Map* m, String name)
+fn void check_pads(Map* m, String name) @local
 {
 	for (int i = 0; i < m.pad_count; i++)
 	{
@@ -154,7 +154,7 @@ fn void check_pads(Map* m, String name)
 	}
 }
 
-fn void check_teleports(Map* m, String name)
+fn void check_teleports(Map* m, String name) @local
 {
 	for (int i = 0; i < m.teleport_count; i++)
 	{
@@ -163,7 +163,7 @@ fn void check_teleports(Map* m, String name)
 	}
 }
 
-fn void check_enclosed(Map* m, String name)
+fn void check_enclosed(Map* m, String name) @local
 {
 	Vec3 eye_up = { 0, defs::EYE_HEIGHT, 0 };
 	for (int i = 0; i < m.spawn_count; i++)
