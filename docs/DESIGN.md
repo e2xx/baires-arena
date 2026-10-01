@@ -3,9 +3,8 @@
 Shooter de arena estilo Quake III, escrito en C3 (0.8.4) sobre raylib 6. Homenaje a Baires LAN:
 multijugador real por red local, bots, consola, mapas inspirados en Buenos Aires.
 
-**Antes de escribir C3, leer `C:\Users\fbarr\source\repos\c3\CLAUDE.md`** (reglas verificadas del
-lenguaje, gotchas, dónde está la doc y la stdlib). Ante duda de API: `grep` en
-`C:\Users\fbarr\source\repos\c3\c3c-bin\lib\std` y compilar. No inventar funciones.
+Requiere c3c **0.8.4**. Ante duda de API: `grep` en la stdlib que trae el compilador (`lib/std`)
+y compilar; la doc completa está en https://c3-lang.org/. No inventar funciones.
 
 ## Alcance
 
@@ -129,5 +128,5 @@ mirror x | z                             # duplica TODO lo declarado hasta acá 
 
 - Cada módulo con `@test` propios donde haya lógica pura (bitbuf, parser, trazas, pmove,
   síntesis, nav). El runner chequea leaks.
-- Estilo de `C:\Users\fbarr\source\repos\c3\CLAUDE.md`: plano, early return, `@private`/`@local`
+- Estilo: plano, early return, `@private`/`@local`
   para lo interno, enums antes que bools, sin números mágicos, llaves siempre.
